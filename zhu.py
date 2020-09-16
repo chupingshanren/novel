@@ -43,7 +43,7 @@ def task_start(lists):#每10W条url启动一个进程
     process_list = []
     for idx, x in enumerate(lists):
         i_list.append(x)
-        if (idx)%4 == 0 or idx == len(lists)-1:
+        if (idx)%4 == 3 or idx == len(lists)-1:
             p = Process(target=process_start,args=(i_list,))
             p.start()
             i_list = []
@@ -53,53 +53,7 @@ def task_start(lists):#每10W条url启动一个进程
         p.join()
             
             #process_start(i_list)
-def lisd(i):
-    try:
-        listd(i)
-    except:
-        print('error')
         
-def listd(i):
-    MAX_RETRIES = 20
-    headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-    }
- 
-# 歌单的url地址 
-    path = r'C:\Users\22129\mytool\Novel\list' 
-    base_url = 'http://www.yousuu.com/book/'    
- # 获取页面内容
-    with requests.session() as session:
-        url = base_url+str(i)
-        adapter = requests.adapters.HTTPAdapter(max_retries=MAX_RETRIES)
-        session.mount('https://', adapter)
-        session.mount('http://', adapter)
-        response=session.get(url,headers = headers).content
-        s = BeautifulSoup(response,'lxml')
- 
-#使用bs4匹配出对应的信息
-        score = s.find('span',{'style':'font-size:20px;color:#4d7bd6'}) 
-        score = re.findall(r"\d+\.?\d*",score.text)[0]
-        num = s.find('small',text = re.compile("本书共有"))
-        num = re.findall(r"\d+\.?\d*",num.text)[0]
-        #评分及评价人数
-        if float(score)>5.6 and int(num)>300:
-            
-            name = s.find('span',{'style':'font-size:18px;font-weight:bold;'}).text     #！！！！！！！！！！！！！！！！
-            name = name.strip()
-            auth = s.find('a',{'href':re.compile("type=author")}).text
-
-            det = s.findAll('div',{'class':'progress'},limit=5)
-        #det = s.findAll('div',{'style':re.compile("width:")},limit=5)
-            list = []
-            for i in det:
-                list.append(i.text)
-            csv_file = open(path+'\\('+num+')'+name+".csv","w",encoding='utf-8',newline='')    
-            writer = csv.writer(csv_file)
-            writer.writerow(['书名','作者','评价人数','评分','五星','四星','三星','二星','一星',])
-            writer.writerow([name,auth,num,score,list[0],list[1],list[2],list[3],list[4]])
-            csv_file.close()
 
 def setup(i,start,end):
 
@@ -144,7 +98,7 @@ def setup(i,start,end):
     # # lll.append(lists[370])
     
     # lll = lists[start:end+1]
-    # lll.append(lists[407])
+    # lll.append(lists[304])
     # task_start(lll)
     task_start(lists[start:end+1])
     
@@ -157,7 +111,7 @@ def setup(i,start,end):
     print(len(lts)) 
         
     
-    for j in range(1,12):
+    for j in range(1,2):
         task_start(lists[start+j*15:end+1+j*15])    
         with open('诸天尽头.html', "a+",encoding='utf-8') as f:
             for i in range(start+j*15,end+1+j*15):
@@ -201,14 +155,18 @@ def main(i):
             # segids.append(segid)
             # segid = []
             session = requests.session()
+            session.mount('http://', HTTPAdapter(max_retries=20))
+            session.mount('https://', HTTPAdapter(max_retries=20))
             for j in range(num):
-                time.sleep(random.randint(30,100))
+                time.sleep(random.randint(2,9)+random.randint(2,9)+10*random.randint(0,5))
                 cont = session.get('https://read.qidian.com/ajax/chapterReview/reviewList?_csrfToken=jYiwmLcaMChAB3NSM1JQFI0oY5EvwJNW36O4TU4w^&bookId='+bookId+'&chapterId='+chapterId+'^&segmentId='+str(chap["data"]["list"][i]["segmentId"])+'^&type=2^&page='+str(j+1)+'^&pageSize=20').json()#, headers=headers
                 for ii in cont["data"]["list"]:
                     if flag:
                         f.write(cont["data"]["list"][0]["quoteContent"]+'</a>\n')
                         flag = 0
                     f.write('<p>&nbsp;&nbsp;&nbsp;&nbsp;'+ii["content"]+'</p>\n')
+                    
+            session.close()
     with open('诸天尽头/'+str(tid)+'说.html', "a+",encoding='utf-8') as f:
         f.write('</body></html>') 
 
@@ -238,5 +196,5 @@ if __name__ == '__main__':
     setup(url,args.start,args.end)
     #    start = 101,end = 120
     # cd C:\Users\22129\mytool\git\novel
-    #python zhu.py -s 142 -e 156
+    #python zhu.py -s 406 -e 420
     
