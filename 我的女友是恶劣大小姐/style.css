@@ -1,0 +1,18 @@
+.container {
+	display: flex;
+	height: 100vh;
+}
+.left {
+	width: 60%;
+	overflow-y: scroll;
+}
+.right {
+	width: 40%;
+	overflow-y: scroll;
+	background-color: #f5f5f5;
+}
+.comment-count {
+	margin-left: 10px;
+	color: #d2cca1 ;
+	cursor: pointer;
+}
